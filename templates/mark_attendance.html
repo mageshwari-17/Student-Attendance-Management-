@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mark Attendance - Attendify</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: #f4f5fb;
+        font-family: Arial, sans-serif;
+      }
+
+      .header {
+        background: linear-gradient(120deg, #4933a5, #8065e8);
+        color: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+      }
+
+      .attendance-card {
+        background: white;
+        padding: 35px;
+        border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        max-width: 750px;
+      }
+
+      .btn-purple {
+        background: #4933a5;
+        color: white;
+      }
+
+      .btn-purple:hover {
+        background: #30216e;
+        color: white;
+      }
+
+      .status-option {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        margin-right: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container py-5">
+      <div class="header">
+        <h2>📝 Mark Student Attendance</h2>
+        <p class="mb-0">Record daily student attendance easily.</p>
+      </div>
+
+      <div class="attendance-card">
+        {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+        {% endif %} {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %} {% if students %}
+        <form method="POST" id="attendanceForm">
+          {% csrf_token %}
+
+          <label class="form-label fw-bold">Select Student</label>
+
+          <select name="student" class="form-select mb-4" required>
+            <option value="">Choose Student</option>
+
+            {% for student in students %}
+            <option value="{{ student.id }}">
+              {{ student.name }} - {{ student.roll_number }}
+            </option>
+            {% endfor %}
+          </select>
+
+          <label class="form-label fw-bold">Attendance Date</label>
+
+          <input
+            type="date"
+            name="date"
+            value="{{ today|date:'Y-m-d' }}"
+            max="{{ today|date:'Y-m-d' }}"
+            class="form-control mb-4"
+            required
+          />
+
+          <label class="form-label fw-bold">Attendance Status</label>
+
+          <div class="mb-4">
+            <label class="status-option text-success">
+              <input type="radio" name="status" value="Present" required />
+              🟢 Present
+            </label>
+
+            <label class="status-option text-danger">
+              <input type="radio" name="status" value="Absent" required />
+              🔴 Absent
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-purple">Save Attendance</button>
+
+          <a href="/" class="btn btn-secondary"> Back to Dashboard </a>
+        </form>
+
+        {% else %}
+        <div class="alert alert-warning">
+          No students found. Please add a student first.
+        </div>
+
+        <a href="/add-student/" class="btn btn-purple"> Add Student </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("attendanceForm");
+
+        if (form) {
+          form.addEventListener("submit", function (event) {
+            const status = form.querySelector('input[name="status"]:checked');
+
+            if (!status) {
+              alert("Please select Present or Absent.");
+              event.preventDefault();
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
